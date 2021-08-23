@@ -1,0 +1,28 @@
+<RCC>
+  <qresource prefix="img">
+    <file>normalHIGH_00000.png</file>
+    <file>normal_00000.png</file>
+    <file>randomON_00000.png</file>
+    <file>randomoff_00000.png</file>
+    <file>viewmusic2_00000.png</file>
+    <file>viewmusic_00000.png</file>
+    <file>settingsFundo_00000.png</file>
+    <file>AddHigh_00000.png</file>
+    <file>Add_00000.png</file>
+    <file>AdMusic_00000.png</file>
+    <file>settingsHIGH_00000.png</file>
+    <file>Settings2_00000.png</file>
+    <file>settings_00000.png</file>
+    <file>rightHIGH_00000.png</file>
+    <file>leftHIGH_00000.png</file>
+    <file>playHIGH_00000.png</file>
+    <file>play_00000.png</file>
+    <file>pauseHIGH_00000.png</file>
+    <file>right_00000.png</file>
+    <file>pause_00000.png</file>
+    <file>left_00000.png</file>
+    <file>capa_00000.png</file>
+    <file>music_00000.png</file>
+    <file>MusicPlayer_00000.png</file>
+  </qresource>
+</RCC>
