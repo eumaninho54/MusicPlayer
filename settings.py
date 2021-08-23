@@ -6,6 +6,7 @@ import sys
 import pytube as pt
 import os
 import moviepy.editor as mp
+import os
 
 
 class Ui_Dialog(object):
@@ -87,25 +88,45 @@ class Ui_Dialog(object):
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
         self.pushButton.clicked.connect(self.add_music)
+        self.pushButton_2.clicked.connect(self.view_music)
+
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
         self.lineEdit.setPlaceholderText(_translate("Dialog", "enter the URL of the song "))
 
+    def view_music(self):
+        path = './musics'
+        path = os.path.realpath(path)
+        os.startfile(path)
+
     def add_music(self):
-        # Download for Youtube
-        url = self.lineEdit.text()
-        stream = pt.YouTube(url = url).streams.get_audio_only()
-        stream.download()
-        title = str(stream.title)
+        try:
+                # Download for Youtube
+                url = self.lineEdit.text()
+                stream = pt.YouTube(url = url).streams.get_audio_only()
+                stream.download()
+                title = str(stream.title)
 
-        # Converter of mp4 to mp3
-        clip = mp.AudioFileClip(title + '.mp4')
-        clip.write_audiofile(f'musics/'+ title + '.mp3')
+                # Converter of mp4 to mp3
+                clip = mp.AudioFileClip(title + '.mp4')
+                clip.write_audiofile(f'musics/'+ title + '.mp3')
 
-        # Remove mp4
-        os.remove(title + '.mp4')
+                # Remove mp4
+                os.remove(title + '.mp4')
+        except:
+                error = QtWidgets.QMessageBox()
+                error.setWindowTitle("Error")
+                error.setIcon(QtWidgets.QMessageBox.Critical)
+                error.setText("Unable to download, error found")
+                error.exec()
+        else:
+                msg = QtWidgets.QMessageBox()
+                msg.setWindowTitle("Done")
+                msg.setIcon(QtWidgets.QMessageBox.Information)
+                msg.setText("Your music was successfully downloaded")
+                msg.exec()
 
 
 
