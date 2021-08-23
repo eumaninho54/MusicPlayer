@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets, QtMultimedia
 from settings import Ui_Dialog
+from mutagen.mp3 import MP3
+from PyQt5.QtMultimedia import *
+import sys
+from os import walk
 
 
 class Ui_MainWindow(object):
+    global num
+    num = 2
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(492, 588)
@@ -80,6 +86,7 @@ class Ui_MainWindow(object):
 "selection-color: rgb(0, 0, 0);\n"
 "color: rgb(255, 255, 255);")
         self.music_final.setObjectName("music_final")
+        '''
         self.pause = QtWidgets.QPushButton(self.centralwidget)
         self.pause.setGeometry(QtCore.QRect(220, 470, 51, 51))
         self.pause.setStyleSheet("QPushButton {\n"
@@ -94,7 +101,7 @@ class Ui_MainWindow(object):
 "    image: url(:/img/pause_00000.png);\n"
 "}")
         self.pause.setText("")
-        self.pause.setObjectName("pause")
+        self.pause.setObjectName("pause")'''
         self.avancar = QtWidgets.QPushButton(self.centralwidget)
         self.avancar.setGeometry(QtCore.QRect(270, 500, 51, 23))
         self.avancar.setStyleSheet("QPushButton {\n"
@@ -194,7 +201,7 @@ class Ui_MainWindow(object):
         self.music_name.raise_()
         self.music_inicial.raise_()
         self.music_final.raise_()
-        self.pause.raise_()
+        #self.pause.raise_()
         self.avancar.raise_()
         self.retroceder.raise_()
         self.play.raise_()
@@ -211,8 +218,36 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        
 
         self.pushButton.clicked.connect(self.openwindow)
+        self.play.clicked.connect(self.playmusic)
+
+
+        self.filenames = next(walk('musics/'), (None, None, []))[2]
+        print(self.filenames)
+
+    def playmusic(self):
+            try:
+                self.playlist = QMediaPlaylist()
+                self.url = QtCore.QUrl.fromLocalFile("musics/"+ self.filenames[num])
+                self.playlist.addMedia(QMediaContent(self.url))
+                self.playlist.setPlaybackMode(QMediaPlaylist.Loop)
+
+                self.player = QMediaPlayer()
+                self.player.setPlaylist(self.playlist)
+                self.player.play()
+            except IndexError:
+                error = QtWidgets.QMessageBox()
+                error.setWindowTitle("Error")
+                error.setIcon(QtWidgets.QMessageBox.Critical)
+                error.setText("No music found, enter the settings above")
+                error.exec()
+                
+
+
+        
+
 
     def openwindow(self):
             self.window = QtWidgets.QMainWindow()
@@ -234,11 +269,10 @@ class Ui_MainWindow(object):
 
 from img import img
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    app.exec_()
+
+app = QtWidgets.QApplication(sys.argv)
+MainWindow = QtWidgets.QMainWindow()
+ui = Ui_MainWindow()
+ui.setupUi(MainWindow)
+MainWindow.show()
+app.exec_()
