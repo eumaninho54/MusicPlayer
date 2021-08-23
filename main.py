@@ -15,16 +15,4 @@ def menu_on():
         ui.setupUi(MainWindow)
         MainWindow.show()
         app.exec_()
-
-def settings_on():
-    if __name__ == "__main__":
-        import sys
-        app = QtWidgets.QApplication(sys.argv)
-        Dialog = QtWidgets.QDialog()
-        ui = settings.Ui_Dialog()
-        ui.setupUi(Dialog)
-        Dialog.show()
-        app.exec_()
-
 menu_on()
-settings_on()

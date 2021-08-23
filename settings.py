@@ -3,6 +3,9 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from img import img
 import sys
+import pytube as pt
+import os
+import moviepy.editor as mp
 
 
 class Ui_Dialog(object):
@@ -83,10 +86,29 @@ class Ui_Dialog(object):
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
+        self.pushButton.clicked.connect(self.add_music)
+
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
         self.lineEdit.setPlaceholderText(_translate("Dialog", "enter the URL of the song "))
+
+    def add_music(self):
+        # Download for Youtube
+        url = self.lineEdit.text()
+        stream = pt.YouTube(url = url).streams.get_audio_only()
+        stream.download()
+        title = str(stream.title)
+
+        # Converter of mp4 to mp3
+        clip = mp.AudioFileClip(title + '.mp4')
+        clip.write_audiofile(f'musics/'+ title + '.mp3')
+
+        # Remove mp4
+        os.remove(title + '.mp4')
+
+
+
 
 
 if __name__ == "__main__":
