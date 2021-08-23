@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from settings import Ui_Dialog
 
 
 class Ui_MainWindow(object):
@@ -211,6 +212,14 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+        self.pushButton.clicked.connect(self.openwindow)
+
+    def openwindow(self):
+            self.window = QtWidgets.QMainWindow()
+            self.ui = Ui_Dialog()
+            self.ui.setupUi(self.window)
+            self.window.show()
+
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
@@ -220,6 +229,9 @@ class Ui_MainWindow(object):
         self.music_name.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:18pt;\">Lil Chainz - Apaixonadin</span></p></body></html>"))
         self.music_inicial.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:14pt;\">00:00</span></p></body></html>"))
         self.music_final.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:14pt;\">02:00</span></p></body></html>"))
+
+
+
 from img import img
 
 if __name__ == "__main__":
@@ -229,4 +241,4 @@ if __name__ == "__main__":
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()
-    sys.exit(app.exec_())
+    app.exec_()

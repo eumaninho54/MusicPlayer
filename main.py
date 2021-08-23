@@ -1,17 +1,30 @@
-# libs
-import pytube as pt
-import os
-import moviepy.editor as mp
+import menu
+import settings
+import sys
+from PyQt5 import QtCore, QtGui, QtWidgets
 
-# Download for Youtube
-url = str(input('URL: '))
-stream = pt.YouTube(url = url).streams.get_audio_only()
-stream.download()
-title = str(stream.title)
+menu.Ui_MainWindow
+settings.Ui_Dialog
 
-# Converter of mp4 to mp3
-clip = mp.AudioFileClip(title + '.mp4')
-clip.write_audiofile(f'musics/'+ title + '.mp3')
+def menu_on():
+    if __name__ == "__main__":
+        import sys
+        app = QtWidgets.QApplication(sys.argv)
+        MainWindow = QtWidgets.QMainWindow()
+        ui = menu.Ui_MainWindow()
+        ui.setupUi(MainWindow)
+        MainWindow.show()
+        app.exec_()
 
-# Remove mp4
-os.remove(title + '.mp4')
+def settings_on():
+    if __name__ == "__main__":
+        import sys
+        app = QtWidgets.QApplication(sys.argv)
+        Dialog = QtWidgets.QDialog()
+        ui = settings.Ui_Dialog()
+        ui.setupUi(Dialog)
+        Dialog.show()
+        app.exec_()
+
+menu_on()
+settings_on()
