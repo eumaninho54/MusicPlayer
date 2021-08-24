@@ -6,7 +6,7 @@ import sys
 import pytube as pt
 import os
 import moviepy.editor as mp
-import os
+
 
 
 class Ui_Dialog(object):
@@ -127,6 +127,8 @@ class Ui_Dialog(object):
                 msg.setIcon(QtWidgets.QMessageBox.Information)
                 msg.setText("Your music was successfully downloaded")
                 msg.exec()
+                
+               
 
 
 

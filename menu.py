@@ -6,7 +6,7 @@ from mutagen.mp3 import MP3
 from PyQt5.QtMultimedia import *
 import sys
 from os import walk
-
+import random
 
 class Ui_MainWindow(object):
     global num
@@ -219,42 +219,100 @@ class Ui_MainWindow(object):
         self.temperatura.raise_()
         self.horario.raise_()
         self.pushButton.raise_()
-        self.retroceder_2.raise_()
         self.retroceder_3.raise_()
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.filenames = next(walk('musics/'), (None, None, []))[2]
         
+        self.player = QMediaPlayer()
+        self.playlist = QMediaPlaylist()
+        for c in range(0, len(self.filenames)):
+                try:
+                        self.url = QtCore.QUrl.fromLocalFile("musics/"+ self.filenames[c])
+                        self.playlist.addMedia(QMediaContent(self.url))
+                        self.playlist.setPlaybackMode(QMediaPlaylist.Loop)
+                        self.player.setPlaylist(self.playlist)
+                except:
+                        continue
 
+        
         self.pushButton.clicked.connect(self.openwindow)
         self.play.clicked.connect(self.playmusic)
         self.pause.clicked.connect(self.pausemusic)
+        self.avancar.clicked.connect(self.avancarmusic)
+        self.retroceder_3.clicked.connect(self.random)
+        self.retroceder_2.clicked.connect(self.normal)
+        self.avancar.clicked.connect(self.next)
+        self.retroceder.clicked.connect(self.previus)
 
+
+    def next(self):
+            self.playlist.next()
+        
+    def previus(self):
+           self.playlist.previous() 
+        
+    def normal(self):
+            self.retroceder_2.hide()
+            self.retroceder_3.show()
+            self.play.show()
+            self.pause.hide()
+            self.playlist = QMediaPlaylist()
+
+            for c in range(0, len(self.filenames)):
+                try:
+                        self.url = QtCore.QUrl.fromLocalFile("musics/"+ self.filenames[c])
+                        self.playlist.addMedia(QMediaContent(self.url))
+                        self.playlist.setPlaybackMode(QMediaPlaylist.Loop)
+                        self.player.setPlaylist(self.playlist)
+                except:
+                        continue
+            self.pausemusic
+            
+    def random(self):
+            self.retroceder_3.hide()
+            self.retroceder_2.raise_()
+            self.retroceder_2.show()
+            self.play.show()
+            self.pause.hide()
+            for c in range(0, len(self.filenames)):
+                try:
+                        self.url = QtCore.QUrl.fromLocalFile("musics/"+ self.filenames[c])
+                        self.playlist.addMedia(QMediaContent(self.url))
+                        self.playlist.setPlaybackMode(QMediaPlaylist.Loop)
+                        self.player.setPlaylist(self.playlist)
+                except:
+                        continue
+            self.playlist.shuffle()
+
+            
+            
+ 
     def playmusic(self):
             self.filenames = next(walk('musics/'), (None, None, []))[2]
             try:
-                self.playlist = QMediaPlaylist()
-                self.url = QtCore.QUrl.fromLocalFile("musics/"+ self.filenames[num])
-                self.playlist.addMedia(QMediaContent(self.url))
-                self.playlist.setPlaybackMode(QMediaPlaylist.Loop)
-
-                self.player = QMediaPlayer()
-                self.player.setPlaylist(self.playlist)
+                self.url = QtCore.QUrl.fromLocalFile("musics/"+ self.filenames[0])
                 self.player.play()
                 self.play.hide()
                 self.pause.raise_()
                 self.pause.show()
-            except IndexError:
+            except:
                 error = QtWidgets.QMessageBox()
                 error.setWindowTitle("Error")
                 error.setIcon(QtWidgets.QMessageBox.Critical)
                 error.setText("No music found, enter the settings above")
                 error.exec()
-                global choice1
-                choice1 = True
+
+    def avancarmusic(self):
+            '''global num
+            num += 1
+            try:
+                self.player.play()'''
                 
     def pausemusic(self):
+            self.filenames = next(walk('musics/'), (None, None, []))[2]
             self.player.pause()
             self.play.show()
             self.pause.hide()
@@ -264,10 +322,15 @@ class Ui_MainWindow(object):
 
 
     def openwindow(self):
+            self.play.show()
+            self.pause.hide()
             self.window = QtWidgets.QMainWindow()
             self.ui = Ui_Dialog()
             self.ui.setupUi(self.window)
             self.window.show()
+            self.filenames = next(walk('musics/'), (None, None, []))[2]
+            self.playlistmusic()
+
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
