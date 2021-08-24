@@ -6,11 +6,14 @@ from mutagen.mp3 import MP3
 from PyQt5.QtMultimedia import *
 import sys
 from os import walk
-import random
+import math
+
 
 class Ui_MainWindow(object):
-    global num
-    num = 0
+    global seg
+    global min
+    seg = 0
+    min = 0
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(492, 588)
@@ -246,13 +249,53 @@ class Ui_MainWindow(object):
         self.retroceder_2.clicked.connect(self.normal)
         self.avancar.clicked.connect(self.next)
         self.retroceder.clicked.connect(self.previus)
+        global seg
+        global min
+        seg = 0
+        min = 0
 
+    def alterar_tempo(self):
+            global min
+            global seg
+            print(self.filenames)
+            pos = self.playlist.currentIndex()
+            try:
+                seg = MP3('musics/' + self.filenames[pos])
+                seg = seg.info.length
+                min = 0
+                print(min, seg)
+                print(math.ceil(min), math.ceil(seg))
+                while seg >= 60:
+                        seg = math.ceil(seg) - 60
+                        min = math.ceil(min) + 1
+                seg = math.ceil(seg)
+                min = math.ceil(min)
+            except:
+                seg = 0
+                min = 0
+                print('erroo')
+
+            if seg < 10:
+                seg = '0' + str(seg)
+            if min < 10:
+                min = '0' + str(min) 
+
+
+            time = str(min) + ':' + str(seg)
+            print(time)
+            _translate = QtCore.QCoreApplication.translate
+            self.music_final.setText(_translate("MainWindow", f"<html><head/><body><p align=\"center\"><span style=\" font-size:14pt;\">{time}</span></p></body></html>"))
+
+    
 
     def next(self):
             self.playlist.next()
+            self.alterar_tempo()
         
     def previus(self):
-           self.playlist.previous() 
+           self.playlist.previous()
+           self.alterar_tempo()
+           
         
     def normal(self):
             self.retroceder_2.hide()
@@ -260,6 +303,7 @@ class Ui_MainWindow(object):
             self.play.show()
             self.pause.hide()
             self.playlist = QMediaPlaylist()
+            self.alterar_tempo()
 
             for c in range(0, len(self.filenames)):
                 try:
@@ -270,6 +314,7 @@ class Ui_MainWindow(object):
                 except:
                         continue
             self.pausemusic
+
             
     def random(self):
             self.retroceder_3.hide()
@@ -277,6 +322,7 @@ class Ui_MainWindow(object):
             self.retroceder_2.show()
             self.play.show()
             self.pause.hide()
+            self.alterar_tempo()
             for c in range(0, len(self.filenames)):
                 try:
                         self.url = QtCore.QUrl.fromLocalFile("musics/"+ self.filenames[c])
@@ -294,16 +340,20 @@ class Ui_MainWindow(object):
             self.filenames = next(walk('musics/'), (None, None, []))[2]
             try:
                 self.url = QtCore.QUrl.fromLocalFile("musics/"+ self.filenames[0])
+
+
                 self.player.play()
                 self.play.hide()
                 self.pause.raise_()
                 self.pause.show()
+                self.alterar_tempo()
             except:
                 error = QtWidgets.QMessageBox()
                 error.setWindowTitle("Error")
                 error.setIcon(QtWidgets.QMessageBox.Critical)
                 error.setText("No music found, enter the settings above")
                 error.exec()
+                
 
     def avancarmusic(self):
             '''global num
@@ -329,18 +379,25 @@ class Ui_MainWindow(object):
             self.ui.setupUi(self.window)
             self.window.show()
             self.filenames = next(walk('musics/'), (None, None, []))[2]
-            self.playlistmusic()
+            for c in range(0, len(self.filenames)):
+                try:
+                        self.url = QtCore.QUrl.fromLocalFile("musics/"+ self.filenames[c])
+                        self.playlist.addMedia(QMediaContent(self.url))
+                        self.playlist.setPlaybackMode(QMediaPlaylist.Loop)
+                        self.player.setPlaylist(self.playlist)
+                except:
+                        continue
 
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "@ymaninho54"))
         self.temperatura.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:26pt;\">29</span></p></body></html>"))
         self.celsius.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:18pt;\">ºC</span></p></body></html>"))
         self.horario.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:26pt;\">16:40</span></p></body></html>"))
         self.music_name.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:18pt;\">Nome da musica</span></p></body></html>"))
         self.music_inicial.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:14pt;\">00:00</span></p></body></html>"))
-        self.music_final.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:14pt;\">02:00</span></p></body></html>"))
+        self.music_final.setText(_translate("MainWindow", f"<html><head/><body><p align=\"center\"><span style=\" font-size:14pt;\">00:00</span></p></body></html>"))
 
 
 
