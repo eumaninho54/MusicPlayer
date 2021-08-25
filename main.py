@@ -74,14 +74,14 @@ class Ui_MainWindow(object):
         self.FundoTop.setObjectName("FundoTop")
         self.barratempo = QtWidgets.QSlider(self.centralwidget)
         self.barratempo.setGeometry(QtCore.QRect(130, 460, 231, 22))
-        self.barratempo.setSingleStep(5)
         self.barratempo.setPageStep(0)
         self.barratempo.setOrientation(QtCore.Qt.Horizontal)
         self.barratempo.setObjectName("barratempo")
-        self.barratempo.setMinimum(-1)
-        self.barratempo.setMaximum(99)
+        self.barratempo.setMinimum(0)
+        self.barratempo.setMaximum(100)
         self.barratempo.setValue(0)
         self.barratempo.setSingleStep(1)
+        self.barratempo.setSliderPosition(0)
        
         self.music_inicial = QtWidgets.QLabel(self.centralwidget)
         self.music_inicial.setGeometry(QtCore.QRect(70, 460, 61, 31))
@@ -260,17 +260,34 @@ class Ui_MainWindow(object):
         global min
         seg = 0
         min = 0
+        self.alterar_tempo()
+        timer = QtCore.QTimer(MainWindow)
+        timer.timeout.connect(self.moviment)
+        timer.start(1000)
+
+    def moviment(self):
+            global segs
+            global segg
+            if not self.play.isVisible():
+                self.barratempo.setSliderPosition(segg)
+                segg = segg + (100/ segs.info.length)
+            if segg == 100:
+                self.barratempo.setSliderPosition(0)
+                self.next()
+                
 
 
-    def alterar_tempo(self, bool=True):
+    def alterar_tempo(self, bool=False):
             global segs
             global min
             global seg
+            global segg
             print(self.filenames)
             pos = self.playlist.currentIndex()
             try:
                 segs = MP3('musics/' + self.filenames[pos])
                 seg = segs.info.length
+                segg = 100 / seg
                 min = 0
                 while seg >= 60:
                         seg = math.ceil(seg) - 60
@@ -308,7 +325,6 @@ class Ui_MainWindow(object):
                 self.alterar_tempo()
             except:
                 pass
-
 
            
         
@@ -408,6 +424,7 @@ class Ui_MainWindow(object):
         self.music_name.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:18pt;\">Nome da musica</span></p></body></html>"))
         self.music_inicial.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:14pt;\">00:00</span></p></body></html>"))
         self.music_final.setText(_translate("MainWindow", f"<html><head/><body><p align=\"center\"><span style=\" font-size:14pt;\">00:00</span></p></body></html>"))
+                
                 
 
 
