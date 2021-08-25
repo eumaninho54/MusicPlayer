@@ -8,6 +8,7 @@ import sys
 from os import walk
 import math
 from random import shuffle
+import time
 
 class Ui_MainWindow(object):
     global seg
@@ -73,8 +74,15 @@ class Ui_MainWindow(object):
         self.FundoTop.setObjectName("FundoTop")
         self.barratempo = QtWidgets.QSlider(self.centralwidget)
         self.barratempo.setGeometry(QtCore.QRect(130, 460, 231, 22))
+        self.barratempo.setSingleStep(5)
+        self.barratempo.setPageStep(0)
         self.barratempo.setOrientation(QtCore.Qt.Horizontal)
         self.barratempo.setObjectName("barratempo")
+        self.barratempo.setMinimum(-1)
+        self.barratempo.setMaximum(99)
+        self.barratempo.setValue(0)
+        self.barratempo.setSingleStep(1)
+       
         self.music_inicial = QtWidgets.QLabel(self.centralwidget)
         self.music_inicial.setGeometry(QtCore.QRect(70, 460, 61, 31))
         self.music_inicial.setLayoutDirection(QtCore.Qt.LeftToRight)
@@ -253,17 +261,17 @@ class Ui_MainWindow(object):
         seg = 0
         min = 0
 
-    def alterar_tempo(self):
+
+    def alterar_tempo(self, bool=True):
+            global segs
             global min
             global seg
             print(self.filenames)
             pos = self.playlist.currentIndex()
             try:
-                seg = MP3('musics/' + self.filenames[pos])
-                seg = seg.info.length
+                segs = MP3('musics/' + self.filenames[pos])
+                seg = segs.info.length
                 min = 0
-                print(min, seg)
-                print(math.ceil(min), math.ceil(seg))
                 while seg >= 60:
                         seg = math.ceil(seg) - 60
                         min = math.ceil(min) + 1
@@ -272,7 +280,6 @@ class Ui_MainWindow(object):
             except:
                 seg = 0
                 min = 0
-                print('erroo')
 
             if seg < 10:
                 seg = '0' + str(seg)
@@ -281,19 +288,26 @@ class Ui_MainWindow(object):
 
 
             time = str(min) + ':' + str(seg)
-            print(time)
             _translate = QtCore.QCoreApplication.translate
             self.music_final.setText(_translate("MainWindow", f"<html><head/><body><p align=\"center\"><span style=\" font-size:14pt;\">{time}</span></p></body></html>"))
 
     
 
     def next(self):
-            self.playlist.next()
-            self.alterar_tempo()
+            try:
+                print(self.filenames[1])
+                self.playlist.next()
+                self.alterar_tempo()
+            except:
+                pass
         
     def previus(self):
-           self.playlist.previous()
-           self.alterar_tempo()
+            try:
+                print(self.filenames[1])
+                self.playlist.previous()
+                self.alterar_tempo()
+            except:
+                pass
 
 
            
@@ -301,10 +315,8 @@ class Ui_MainWindow(object):
     def normal(self):
             self.retroceder_2.hide()
             self.retroceder_3.show()
-            self.play.show()
-            self.pause.hide()
             self.playlist.clear()
-            self.alterar_tempo()
+            self.filenames.sort()
             for c in range(0, len(self.filenames)):
                 try:
                         self.url = QtCore.QUrl.fromLocalFile("musics/"+ self.filenames[c])
@@ -313,15 +325,14 @@ class Ui_MainWindow(object):
                         self.player.setPlaylist(self.playlist)
                 except:
                         continue
-            self.pausemusic
+            self.player.play()
+            self.alterar_tempo()
 
             
     def random(self):
             self.retroceder_3.hide()
             self.retroceder_2.raise_()
             self.retroceder_2.show()
-            self.play.show()
-            self.pause.hide()
             self.playlist.clear()
             shuffle(self.filenames)
             for c in range(0, len(self.filenames)):
@@ -332,29 +343,34 @@ class Ui_MainWindow(object):
                         self.player.setPlaylist(self.playlist)
                 except:
                         continue
+            self.player.play()
             self.alterar_tempo()
             
             
  
     def playmusic(self):
             try:
+                self.alterar_tempo()
+                self.filenames[0]
                 self.player.play()
                 self.play.hide()
                 self.pause.raise_()
                 self.pause.show()
-                self.alterar_tempo()
             except:
                 error = QtWidgets.QMessageBox()
                 error.setWindowTitle("Error")
                 error.setIcon(QtWidgets.QMessageBox.Critical)
                 error.setText("No music found, enter the settings above")
                 error.exec()
+                self.filenames = next(walk('musics/'), (None, None, []))[2]
+                self.pause.hide()
+                self.play.show()
                 
     def pausemusic(self):
-            self.filenames = next(walk('musics/'), (None, None, []))[2]
             self.player.pause()
             self.play.show()
             self.pause.hide()
+            print(self.player.position())
           
         
 
@@ -366,7 +382,8 @@ class Ui_MainWindow(object):
             self.ui = Ui_Dialog()
             self.ui.setupUi(self.window)
             self.window.show()
-            self.filenames = next(walk('musics/'), (None, None, []))[2]
+            self.playlist.clear()
+            shuffle(self.filenames)
             for c in range(0, len(self.filenames)):
                 try:
                         self.url = QtCore.QUrl.fromLocalFile("musics/"+ self.filenames[c])
@@ -375,6 +392,10 @@ class Ui_MainWindow(object):
                         self.player.setPlaylist(self.playlist)
                 except:
                         continue
+            self.retroceder_2.raise_()
+            self.retroceder_2.show()
+            self.retroceder_3.hide()
+
    
 
 
@@ -387,7 +408,7 @@ class Ui_MainWindow(object):
         self.music_name.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:18pt;\">Nome da musica</span></p></body></html>"))
         self.music_inicial.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:14pt;\">00:00</span></p></body></html>"))
         self.music_final.setText(_translate("MainWindow", f"<html><head/><body><p align=\"center\"><span style=\" font-size:14pt;\">00:00</span></p></body></html>"))
-
+                
 
 
 from img import img

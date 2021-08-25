@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="img">
+    <file>gifbar.avi</file>
     <file>normalHIGH_00000.png</file>
     <file>normal_00000.png</file>
     <file>randomON_00000.png</file>
