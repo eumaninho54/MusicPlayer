@@ -14,8 +14,10 @@ class Ui_MainWindow(object):
     global mode
     global seg
     global min
+    global min2
     mode = False
     seg = 0
+    min = 0
     min = 0
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -53,7 +55,7 @@ class Ui_MainWindow(object):
 "color: rgb(212, 212, 212);")
         self.celsius.setObjectName("celsius")
         self.horario = QtWidgets.QLabel(self.centralwidget)
-        self.horario.setGeometry(QtCore.QRect(410, 10, 71, 41))
+        self.horario.setGeometry(QtCore.QRect(410, 10, 75, 45))
         self.horario.setStyleSheet("font: 20px \"Satisfy\";\n"
 "color: rgb(212, 212, 212);")
         self.horario.setObjectName("horario")
@@ -99,6 +101,21 @@ class Ui_MainWindow(object):
 "selection-color: rgb(0, 0, 0);\n"
 "color: rgb(255, 255, 255);")
         self.music_final.setObjectName("music_final")
+        self.play2 = QtWidgets.QPushButton(self.centralwidget)
+        self.play2.setGeometry(QtCore.QRect(220, 470, 51, 51))
+        self.play2.setStyleSheet("QPushButton {\n"
+"    image: url(:/img/play_00000.png);\n"
+"    background-color: rgba(205, 205, 205, 0);\n"
+"    boder-radius: 5px;\n"
+"}\n"
+"QPushButton:hover{\n"
+"    image: url(:/img/playHIGH_00000.png);\n"
+"}\n"
+"QPushButton:pressed{\n"
+"    image: url(:/img/play_00000.png);\n"
+"}")
+        self.play2.setText("")
+        self.play2.setObjectName("play2")
         
         
         self.pause = QtWidgets.QPushButton(self.centralwidget)
@@ -225,11 +242,11 @@ class Ui_MainWindow(object):
 
 
         self.play.raise_()
+        self.play2.raise_()
+        self.play2.hide()
         self.barratempo.raise_()
         self.FundoTop.raise_()
         self.MusicPlayer.raise_()
-        self.celsius.raise_()
-        self.temperatura.raise_()
         self.horario.raise_()
         self.pushButton.raise_()
         self.retroceder_3.raise_()
@@ -259,6 +276,7 @@ class Ui_MainWindow(object):
         self.avancar.clicked.connect(self.next)
         self.retroceder.clicked.connect(self.previus)
         self.barratempo.sliderMoved.connect(self.music_moviment)
+        self.play2.clicked.connect(self.play2on)
         global seg
         global min
         seg = 0
@@ -267,7 +285,17 @@ class Ui_MainWindow(object):
         self.timer = QtCore.QTimer(MainWindow)
         self.timer.timeout.connect(self.moviment)
         self.timer.timeout.connect(self.att_lista)
+        self.timer.timeout.connect(self.time_inic)
+        self.timer.timeout.connect(self.current_time)
         self.timer.start(10) # 1/100 seconds
+        self.current_time()
+
+
+    def current_time(self):
+        tm = time.strftime('%H:%M', time.localtime())
+        _translate = QtCore.QCoreApplication.translate
+        self.horario.setText(_translate("MainWindow", f"<html><head/><body><p><span style=\" font-size:26pt;\">{tm}</span></p></body></html>"))
+
 
     def att_lista(self, bool=False):
         self.filenames = next(walk('musics/'), (None, None, []))[2]
@@ -282,6 +310,38 @@ class Ui_MainWindow(object):
                         except:
                                 continue
 
+    def play2on(self):
+        try:
+                self.filenames = next(walk('musics/'), (None, None, []))[2]
+                self.player = QMediaPlayer()
+                self.playlist = QMediaPlaylist()
+                for c in range(0, len(self.filenames)):
+                        try:
+                                self.url = QtCore.QUrl.fromLocalFile("musics/"+ self.filenames[c])
+                                self.playlist.addMedia(QMediaContent(self.url))
+                                self.playlist.setPlaybackMode(QMediaPlaylist.Loop)
+                                self.player.setPlaylist(self.playlist)
+                        except:
+                                continue
+                print(self.player.position())
+                print(self.barratempo.sliderPosition())
+                self.alterar_tempo(bool=True)
+                self.filenames[0]
+                self.player.play()
+                self.play2.hide()
+                self.pause.raise_()
+                self.pause.show()
+        except:
+                error = QtWidgets.QMessageBox()
+                error.setWindowTitle("Error")
+                error.setIcon(QtWidgets.QMessageBox.Critical)
+                error.setText("No music found, enter the settings above")
+                error.exec()
+                self.filenames = next(walk('musics/'), (None, None, []))[2]
+                self.pause.hide()
+                self.play.show()
+        else:
+                print('Oi')
 
 
     def mode_music(self, bool):
@@ -290,6 +350,37 @@ class Ui_MainWindow(object):
                 mode = False
         if bool == True:
                 mode = True
+
+    def name_music(self):
+        pos = self.playlist.currentIndex()
+        name = self.filenames[pos]
+        name = name[:20] + '...'
+        _translate = QtCore.QCoreApplication.translate
+        self.music_name.setText(_translate("MainWindow", f"<html><head/><body><p align=\"center\"><span style=\" font-size:18pt;\">{name}</span></p></body></html>"))
+
+
+    def time_inic(self):
+        global segs
+        seg = 0
+        min = 0
+        time = 0
+        if not self.play.isVisible() and self.pause.isVisible():
+                seg = self.player.position()/1000
+                seg = int(seg)
+                min = int(min)
+                while seg >= 60:
+                        seg = seg - 60
+                        min += 1
+                if seg < 10:
+                        seg = int(seg)
+                        seg = '0'+ str(seg)
+                if min < 10:
+                        min = int(min)
+                        min = '0' + str(min)
+                time = str(min) + ':' + str(seg)
+                _translate = QtCore.QCoreApplication.translate
+                self.music_inicial.setText(_translate("MainWindow", f"<html><head/><body><p align=\"center\"><span style=\" font-size:14pt;\">{time}</span></p></body></html>"))
+                self.name_music()
 
 
 
@@ -313,10 +404,11 @@ class Ui_MainWindow(object):
         self.alterar_tempo()
         global segs
         global segg
-        if not self.play.isVisible():
+        if not self.play.isVisible() and self.pause.isVisible():
                 segg = segs.info.length * 1000
                 self.barratempo.setMaximum(segg)
                 self.barratempo.setSliderPosition(self.player.position())
+        
             
                 
     def alterar_tempo(self, bool=False):
@@ -440,7 +532,9 @@ class Ui_MainWindow(object):
 
     def openwindow(self):
             global sentido
-            self.play.show()
+            self.play.hide()
+            self.play2.raise_
+            self.play2.show()
             self.pause.hide()
             self.window = QtWidgets.QMainWindow()
             self.ui = Ui_Dialog()
@@ -462,7 +556,6 @@ class Ui_MainWindow(object):
             self.retroceder_2.show()
             self.retroceder_3.hide()
             self.barratempo.setSliderPosition(0)
-            self.att_lista(True)
             
 
 
@@ -472,10 +565,11 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "@ymaninho54"))
+        MainWindow.setWindowIcon(QtGui.QIcon('img/music_00000'))
         self.temperatura.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:26pt;\">29</span></p></body></html>"))
         self.celsius.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:18pt;\">ºC</span></p></body></html>"))
         self.horario.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:26pt;\">16:40</span></p></body></html>"))
-        self.music_name.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:18pt;\">Nome da musica</span></p></body></html>"))
+        self.music_name.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:18pt;\">Hi Homie!</span></p></body></html>"))
         self.music_inicial.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:14pt;\">00:00</span></p></body></html>"))
         self.music_final.setText(_translate("MainWindow", f"<html><head/><body><p align=\"center\"><span style=\" font-size:14pt;\">00:00</span></p></body></html>"))
                 

@@ -127,6 +127,9 @@ class Ui_Dialog(object):
                 msg.setIcon(QtWidgets.QMessageBox.Information)
                 msg.setText("Your music was successfully downloaded")
                 msg.exec()
+
+    def retranslateUi(self, Dialog):
+        Dialog.setWindowIcon(QtGui.QIcon('img/settings_00000'))
                 
                
 
