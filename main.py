@@ -5,10 +5,11 @@ from settings import Ui_Dialog
 from mutagen.mp3 import MP3
 from PyQt5.QtMultimedia import *
 import sys
-from os import walk
+from os import walk, mkdir
 import math
 from random import shuffle
 import time
+import subprocess
 
 class Ui_MainWindow(object):
     global mode
@@ -254,6 +255,10 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        try:
+                mkdir('./musics')
+        except:
+                pass
         self.filenames = next(walk('musics/'), (None, None, []))[2]
         
         self.player = QMediaPlayer()
@@ -323,8 +328,6 @@ class Ui_MainWindow(object):
                                 self.player.setPlaylist(self.playlist)
                         except:
                                 continue
-                print(self.player.position())
-                print(self.barratempo.sliderPosition())
                 self.alterar_tempo(bool=True)
                 self.filenames[0]
                 self.player.play()
@@ -340,8 +343,6 @@ class Ui_MainWindow(object):
                 self.filenames = next(walk('musics/'), (None, None, []))[2]
                 self.pause.hide()
                 self.play.show()
-        else:
-                print('Oi')
 
 
     def mode_music(self, bool):
@@ -446,7 +447,6 @@ class Ui_MainWindow(object):
 
     def next(self):
             try:
-                print(self.filenames[1])
                 self.playlist.next()
                 self.alterar_tempo()
                 self.barratempo.setSliderPosition(0)
@@ -455,7 +455,6 @@ class Ui_MainWindow(object):
         
     def previus(self):
             try:
-                print(self.filenames[1])
                 self.playlist.previous()
                 self.alterar_tempo()
                 self.barratempo.setSliderPosition(0)
@@ -505,8 +504,6 @@ class Ui_MainWindow(object):
     def playmusic(self):
             try:
                 self.att_lista()
-                print(self.player.position())
-                print(self.barratempo.sliderPosition())
                 self.alterar_tempo(bool=True)
                 self.filenames[0]
                 self.player.play()

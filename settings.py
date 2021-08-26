@@ -6,6 +6,7 @@ import sys
 import pytube as pt
 import os
 import moviepy.editor as mp
+import subprocess
 
 
 
@@ -104,6 +105,10 @@ class Ui_Dialog(object):
     def add_music(self):
         try:
                 # Download for Youtube
+                try:
+                    os.mkdir('./musics')
+                except:
+                    pass
                 url = self.lineEdit.text()
                 stream = pt.YouTube(url = url).streams.get_audio_only()
                 stream.download()
