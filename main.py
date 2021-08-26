@@ -11,8 +11,10 @@ from random import shuffle
 import time
 
 class Ui_MainWindow(object):
+    global mode
     global seg
     global min
+    mode = False
     seg = 0
     min = 0
     def setupUi(self, MainWindow):
@@ -78,7 +80,7 @@ class Ui_MainWindow(object):
         self.barratempo.setOrientation(QtCore.Qt.Horizontal)
         self.barratempo.setObjectName("barratempo")
         self.barratempo.setMinimum(0)
-        self.barratempo.setMaximum(100)
+        self.barratempo.setMaximum(10000)
         self.barratempo.setValue(0)
         self.barratempo.setSingleStep(1)
         self.barratempo.setSliderPosition(0)
@@ -256,38 +258,78 @@ class Ui_MainWindow(object):
         self.retroceder_2.clicked.connect(self.normal)
         self.avancar.clicked.connect(self.next)
         self.retroceder.clicked.connect(self.previus)
+        self.barratempo.sliderMoved.connect(self.music_moviment)
         global seg
         global min
         seg = 0
         min = 0
         self.alterar_tempo()
-        timer = QtCore.QTimer(MainWindow)
-        timer.timeout.connect(self.moviment)
-        timer.start(1000)
+        self.timer = QtCore.QTimer(MainWindow)
+        self.timer.timeout.connect(self.moviment)
+        self.timer.timeout.connect(self.att_lista)
+        self.timer.start(10) # 1/100 seconds
+
+    def att_lista(self, bool=False):
+        self.filenames = next(walk('musics/'), (None, None, []))[2]
+        if bool == True:
+                self.playlist.clear()
+                for c in range(0, len(self.filenames)):
+                        try:
+                                self.url = QtCore.QUrl.fromLocalFile("musics/"+ self.filenames[c])
+                                self.playlist.addMedia(QMediaContent(self.url))
+                                self.playlist.setPlaybackMode(QMediaPlaylist.Loop)
+                                self.player.setPlaylist(self.playlist)
+                        except:
+                                continue
+
+
+
+    def mode_music(self, bool):
+        global mode
+        if bool == False:
+                mode = False
+        if bool == True:
+                mode = True
+
+
+
+
+    def music_moviment(self):
+        self.alterar_tempo()
+        global segs
+        global segg
+        self.player.pause()
+        self.play.show()
+        self.pause.hide()
+        segg = segs.info.length * 1000
+        self.barratempo.setMaximum(segg)
+        self.player.setPosition(self.barratempo.sliderPosition())
+
+
+        
+
 
     def moviment(self):
-            global segs
-            global segg
-            if not self.play.isVisible():
-                self.barratempo.setSliderPosition(segg)
-                segg = segg + (100/ segs.info.length)
-            if segg == 100:
-                self.barratempo.setSliderPosition(0)
-                self.next()
+        self.alterar_tempo()
+        global segs
+        global segg
+        if not self.play.isVisible():
+                segg = segs.info.length * 1000
+                self.barratempo.setMaximum(segg)
+                self.barratempo.setSliderPosition(self.player.position())
+            
                 
-
-
     def alterar_tempo(self, bool=False):
             global segs
             global min
             global seg
             global segg
-            print(self.filenames)
             pos = self.playlist.currentIndex()
             try:
                 segs = MP3('musics/' + self.filenames[pos])
                 seg = segs.info.length
-                segg = 100 / seg
+                if bool == False:
+                        segg = 100 / (seg)
                 min = 0
                 while seg >= 60:
                         seg = math.ceil(seg) - 60
@@ -315,6 +357,7 @@ class Ui_MainWindow(object):
                 print(self.filenames[1])
                 self.playlist.next()
                 self.alterar_tempo()
+                self.barratempo.setSliderPosition(0)
             except:
                 pass
         
@@ -323,6 +366,7 @@ class Ui_MainWindow(object):
                 print(self.filenames[1])
                 self.playlist.previous()
                 self.alterar_tempo()
+                self.barratempo.setSliderPosition(0)
             except:
                 pass
 
@@ -343,6 +387,7 @@ class Ui_MainWindow(object):
                         continue
             self.player.play()
             self.alterar_tempo()
+            self.mode_music(False)
 
             
     def random(self):
@@ -361,12 +406,16 @@ class Ui_MainWindow(object):
                         continue
             self.player.play()
             self.alterar_tempo()
+            self.mode_music(True)
             
             
  
     def playmusic(self):
             try:
-                self.alterar_tempo()
+                self.att_lista()
+                print(self.player.position())
+                print(self.barratempo.sliderPosition())
+                self.alterar_tempo(bool=True)
                 self.filenames[0]
                 self.player.play()
                 self.play.hide()
@@ -386,7 +435,6 @@ class Ui_MainWindow(object):
             self.player.pause()
             self.play.show()
             self.pause.hide()
-            print(self.player.position())
           
         
 
@@ -398,8 +446,10 @@ class Ui_MainWindow(object):
             self.ui = Ui_Dialog()
             self.ui.setupUi(self.window)
             self.window.show()
+            self.filenames = next(walk('musics/'), (None, None, []))[2]
             self.playlist.clear()
-            shuffle(self.filenames)
+            if mode == True:
+                    shuffle(self.filenames)
             for c in range(0, len(self.filenames)):
                 try:
                         self.url = QtCore.QUrl.fromLocalFile("musics/"+ self.filenames[c])
@@ -411,6 +461,10 @@ class Ui_MainWindow(object):
             self.retroceder_2.raise_()
             self.retroceder_2.show()
             self.retroceder_3.hide()
+            self.barratempo.setSliderPosition(0)
+            self.att_lista(True)
+            
+
 
    
 
